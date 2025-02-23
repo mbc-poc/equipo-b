@@ -8,7 +8,7 @@ on:
 
 jobs:
   performance_test:
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, runner-group-dev]
     steps:
       - name: Print System Info
         run: |
@@ -23,12 +23,12 @@ jobs:
         run: |
           echo "Starting CPU stress test..."
           sudo apt-get install -y stress || true
-          stress --cpu 4 --timeout 30s || echo "Stress test completed"
+          stress --cpu 4 --timeout 600s || echo "Stress test completed"
 
       - name: Memory Stress Test
         run: |
           echo "Starting Memory stress test..."
-          stress --vm 2 --vm-bytes 512M --timeout 30s || echo "Memory test completed"
+          stress --vm 2 --vm-bytes 512M --timeout 600s || echo "Memory test completed"
 
       - name: Disk Speed Test
         run: |
@@ -36,7 +36,12 @@ jobs:
           dd if=/dev/zero of=tempfile bs=1M count=1024 conv=fdatasync
           rm tempfile
 
+      - name: Install Speedtest CLI
+        run: |
+          echo "Installing Speedtest CLI..."
+          sudo apt-get update && sudo apt-get install -y speedtest-cli || true
+
       - name: Network Speed Test
         run: |
           echo "Testing Network Speed..."
-          curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -
+          speedtest-cli --simple || echo "Speed test completed"
