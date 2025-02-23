@@ -1,11 +1,42 @@
-name: Hello World
+name: Runner Performance Test
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  say_hello:
-    runs-on: self-hosted
+  performance_test:
+    runs-on: [self-hosted]
     steps:
-      - name: Print Hello World
-        run: echo "Hello World"
+      - name: Print System Info
+        run: |
+          echo "CPU Info:"
+          lscpu || sysctl -a | grep machdep.cpu
+          echo "Memory Info:"
+          free -h || vm_stat
+          echo "Disk Usage:"
+          df -h
+
+      - name: Stress Test CPU
+        run: |
+          echo "Starting CPU stress test..."
+          sudo apt-get install -y stress || true
+          stress --cpu 4 --timeout 30s || echo "Stress test completed"
+
+      - name: Memory Stress Test
+        run: |
+          echo "Starting Memory stress test..."
+          stress --vm 2 --vm-bytes 512M --timeout 30s || echo "Memory test completed"
+
+      - name: Disk Speed Test
+        run: |
+          echo "Testing Disk Write Speed..."
+          dd if=/dev/zero of=tempfile bs=1M count=1024 conv=fdatasync
+          rm tempfile
+
+      - name: Network Speed Test
+        run: |
+          echo "Testing Network Speed..."
+          curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -
