@@ -5,7 +5,7 @@ on:
 
 jobs:
   say_hello:
-    runs-on: runner-group-dev
+    runs-on: [self-hosted, runner-group-dev]
     steps:
       - name: Print Hello World
         run: echo "Hello World"
