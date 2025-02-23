@@ -1,14 +1,11 @@
 name: Runner Performance Test
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
   performance_test:
-    runs-on: [self-hosted, runner-group-dev]
+    runs-on: self-hosted
     steps:
       - name: Print System Info
         run: |
